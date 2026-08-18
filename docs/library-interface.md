@@ -1,0 +1,70 @@
+# Desktop library
+
+This document translates the Lunacy frames `Library - Empty / Desktop` and
+`Library - Populated / Desktop` into an implementation reference. Lunacy
+remains the visual source of truth.
+
+## Scope
+
+The library surface lists documents known to Malum and provides the first URL
+import entry point. This slice includes empty, ready, and importing states; an
+Add menu; URL entry; navigation into the reader; and navigation back to the
+library.
+
+Search, filtering, sorting, tags, bulk operations, archive behavior, and other
+source types are outside this slice.
+
+## Desktop geometry
+
+- Reference viewport: 1440 by 1024 pixels.
+- Page background: `#090909`.
+- Application sidebar: fixed to the left edge, 300 pixels wide and viewport
+  high, with 16 pixels of padding, a `#121212` background, and a one-pixel
+  right divider.
+- Brand banner: 268 pixels wide, approximately 56 pixels high, `#252525`
+  background, and 12-pixel radius. The Malum wordmark uses Merriweather Bold at
+  32 pixels. The add control is aligned to its right.
+- The selected Library navigation item sits below the banner. It is the only
+  navigation destination currently designed; no speculative entries should be
+  added.
+- Library content begins at x=300 with 16 pixels of padding.
+
+## Empty state
+
+The empty state is centered within the library content region. It contains the
+muted 24-pixel text `No documents yet.` and `Add something you want to read.`,
+followed by the Add document control. The large amount of remaining empty space
+is intentional.
+
+## Library rows
+
+- Rows are 1108 pixels wide and 126 pixels high with eight pixels of vertical
+  inset and a 16-pixel gap between thumbnail and information.
+- A ready row has a 110-pixel square image with an 8-pixel radius. Its title is
+  Cabin Bold at 36 pixels. Description and metadata are 24 pixels; secondary
+  information is `#868686`.
+- A ready row is the navigation target for its reader route.
+- An importing row shows the submitted URL as its temporary title and an
+  `Importing...` status. Its appearance is muted, but implementation should use
+  explicit subdued colors instead of reducing opacity on the whole row. A
+  DaisyUI loading indicator may accompany the status.
+- A failed import is not a library document. Its importing row disappears and a
+  DaisyUI error toast identifies the failed source and offers a retry action.
+
+## Add flow
+
+Both the sidebar add icon and the empty-state button open the same DaisyUI
+dropdown. The dropdown currently contains one option, URL. Choosing URL opens a
+DaisyUI modal containing a labelled URL input and Cancel/Add actions.
+
+The controls use DaisyUI behavior and accessibility primitives while taking
+their colors, typography, and proportions from Malum rather than a stock
+DaisyUI theme.
+
+## Navigation
+
+- `/library` displays the library.
+- `/documents/:documentId` displays the selected document in the reader.
+- The reader sidebar begins with a back control returning to `/library`, above
+  the table of contents.
+

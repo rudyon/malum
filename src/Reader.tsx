@@ -1,4 +1,6 @@
+import { ArrowLeft } from 'lucide-react'
 import type { ArticleBlock, ArticleDocument } from './document'
+import { Link } from 'react-router-dom'
 
 type ReaderProps = {
   article: ArticleDocument
@@ -29,8 +31,11 @@ function Block({ block }: { block: ArticleBlock }) {
 export function Reader({ article }: ReaderProps) {
   return (
     <main className="reader-shell">
-      <aside className="table-of-contents" aria-label="Table of contents">
-        <nav>
+      <aside className="reader-sidebar">
+        <Link aria-label="Back to library" className="reader-back-button" to="/library">
+          <ArrowLeft className="back-icon" strokeWidth={2.25} />
+        </Link>
+        <nav className="table-of-contents" aria-label="Table of contents">
           <a className="toc-entry toc-current" href="#article-title" aria-current="location">
             {article.title}
           </a>
@@ -69,7 +74,7 @@ export function Reader({ article }: ReaderProps) {
           </section>
         ))}
       </article>
+      <aside className="reader-right-sidebar" aria-hidden="true" />
     </main>
   )
 }
-

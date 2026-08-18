@@ -26,8 +26,14 @@ export type ArticleSection = {
 }
 
 export type ArticleDocument = {
+  id: string
   title: string
   author: string
+  description: string
+  thumbnail: {
+    src: string
+    alt: string
+  }
   source: {
     label: string
     url: string
@@ -36,3 +42,15 @@ export type ArticleDocument = {
   sections: ArticleSection[]
 }
 
+export type ReadyLibraryDocument = {
+  status: 'ready'
+  article: ArticleDocument
+}
+
+export type ImportingLibraryDocument = {
+  id: string
+  status: 'importing'
+  url: string
+}
+
+export type LibraryDocument = ReadyLibraryDocument | ImportingLibraryDocument

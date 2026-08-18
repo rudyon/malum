@@ -2,8 +2,14 @@ import observatoryImage from './assets/winter-observatory.svg'
 import type { ArticleDocument } from './document'
 
 export const sampleArticle: ArticleDocument = {
+  id: 'the-cartographers-winter',
   title: "the cartographer's winter",
   author: 'Mara Vale',
+  description: 'Maps, memory, and the limits of knowing a place.',
+  thumbnail: {
+    src: observatoryImage,
+    alt: 'A winter observatory beneath a moonlit mountain sky.',
+  },
   source: {
     label: 'fieldnotes.local',
     url: 'https://fieldnotes.local/cartographers-winter',
@@ -132,4 +138,3 @@ export const sampleArticle: ArticleDocument = {
     },
   ],
 }
-
