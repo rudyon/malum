@@ -51,4 +51,3 @@ designed yet.
 - The checked-in fixture is original material. It mirrors the density and
   structural variety of the Lunacy reference without copying the referenced
   article or its images.
-
