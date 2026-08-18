@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1138 640" role="img" aria-labelledby="title description">
+  <title id="title">The north observatory in winter</title>
+  <desc id="description">A remote observatory and amber-lit map room among snowy mountains beneath a deep blue sky.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1d3355"/>
+      <stop offset="0.58" stop-color="#48647b"/>
+      <stop offset="1" stop-color="#d0a67d"/>
+    </linearGradient>
+    <linearGradient id="snow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#dce5e6"/>
+      <stop offset="1" stop-color="#7d929c"/>
+    </linearGradient>
+    <linearGradient id="building" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#31414a"/>
+      <stop offset="1" stop-color="#182329"/>
+    </linearGradient>
+    <radialGradient id="glow">
+      <stop offset="0" stop-color="#ffd58a" stop-opacity=".7"/>
+      <stop offset="1" stop-color="#e9a449" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1138" height="640" fill="url(#sky)"/>
+  <circle cx="880" cy="124" r="108" fill="url(#glow)"/>
+  <circle cx="880" cy="124" r="36" fill="#e8dcc5" opacity=".84"/>
+  <g fill="#d7e1e1" opacity=".72">
+    <circle cx="103" cy="92" r="2"/><circle cx="154" cy="149" r="1.5"/><circle cx="248" cy="83" r="2"/>
+    <circle cx="333" cy="135" r="1.5"/><circle cx="413" cy="65" r="1.3"/><circle cx="526" cy="112" r="2"/>
+    <circle cx="679" cy="73" r="1.5"/><circle cx="746" cy="151" r="1.2"/><circle cx="1012" cy="72" r="2"/>
+  </g>
+  <path d="M0 338L176 196l122 112 121-165 151 177 125-126 171 131 121-109 151 128v296H0z" fill="#718791"/>
+  <path d="M0 360L176 196l49 96 73 16 121-165 57 145 94 32 125-126 47 105 124 26 121-109 43 93 108 35v296H0z" fill="url(#snow)"/>
+  <path d="M0 419l175-86 164 53 131-68 173 72 163-54 146 62 186-70v312H0z" fill="#61747b"/>
+  <path d="M0 470l206-64 167 55 197-56 143 51 180-58 245 74v168H0z" fill="#c7d3d3"/>
+  <path d="M0 524c155-30 285-26 403 10 149 46 287 43 414-7 113-44 220-43 321 4v109H0z" fill="#e0e7e5"/>
+  <g transform="translate(252 268)">
+    <rect x="48" y="128" width="554" height="160" rx="5" fill="url(#building)"/>
+    <path d="M20 134L84 84h476l72 50z" fill="#202e35"/>
+    <path d="M74 86h496l36 25H43z" fill="#98a8aa"/>
+    <path d="M91 86l31-36h397l39 36z" fill="#26373f"/>
+    <rect x="107" y="151" width="310" height="91" fill="#263940"/>
+    <g fill="#e9ad5b">
+      <rect x="126" y="169" width="43" height="53" rx="2"/><rect x="190" y="169" width="43" height="53" rx="2"/>
+      <rect x="254" y="169" width="43" height="53" rx="2"/><rect x="318" y="169" width="43" height="53" rx="2"/>
+      <rect x="382" y="169" width="18" height="53" rx="2"/>
+    </g>
+    <g stroke="#604830" stroke-width="5">
+      <path d="M147 169v53M126 195h43M211 169v53M190 195h43M275 169v53M254 195h43M339 169v53M318 195h43"/>
+    </g>
+    <rect x="449" y="157" width="112" height="131" fill="#1c292f"/>
+    <path d="M438 157l67-45 68 45z" fill="#152228"/>
+    <rect x="479" y="202" width="52" height="86" fill="#111a1f"/>
+    <circle cx="505" cy="182" r="10" fill="#e6b76e"/>
+    <path d="M475 105a58 58 0 0 1 116 0v7H475z" fill="#c1cccd"/>
+    <path d="M489 104a44 44 0 0 1 88 0" fill="none" stroke="#273a43" stroke-width="15"/>
+    <rect x="526" y="43" width="14" height="72" fill="#293b43"/>
+  </g>
+  <path d="M548 640l36-174h51l42 174z" fill="#809096" opacity=".72"/>
+  <path d="M567 640l27-163h30l31 163z" fill="#d6dddd"/>
+  <g fill="#26383e">
+    <path d="M105 519l29-82 30 82z"/><path d="M77 548l44-106 45 106z"/><path d="M925 530l38-101 39 101z"/>
+    <path d="M979 555l49-126 51 126z"/><path d="M42 570l35-90 37 90z"/>
+  </g>
+</svg>
+
