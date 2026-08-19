@@ -51,6 +51,27 @@ func (c *Catalog) GetDocument(ctx context.Context, documentID string) (Document,
 	return document, err
 }
 
+func (c *Catalog) GetAuthor(ctx context.Context, authorID string) (Author, error) {
+	if !identifier.IsUUID(authorID) {
+		return Author{}, fmt.Errorf("get author: invalid UUID %q", authorID)
+	}
+	var author Author
+	var avatarSource, avatarPath sql.NullString
+	err := c.database.QueryRowContext(ctx, `
+		SELECT id, handle, display_name, avatar_source_url, avatar_path
+		FROM authors WHERE id = ?`, authorID,
+	).Scan(&author.ID, &author.Handle, &author.DisplayName, &avatarSource, &avatarPath)
+	if errors.Is(err, sql.ErrNoRows) {
+		return Author{}, fmt.Errorf("%w: %s", ErrAuthorNotFound, authorID)
+	}
+	if err != nil {
+		return Author{}, fmt.Errorf("get author: %w", err)
+	}
+	author.AvatarSourceURL = avatarSource.String
+	author.AvatarPath = avatarPath.String
+	return author, nil
+}
+
 func (c *Catalog) SetAuthorAvatar(ctx context.Context, authorID, sourceURL, relativePath string) error {
 	if !identifier.IsUUID(authorID) {
 		return fmt.Errorf("set author avatar: invalid author UUID %q", authorID)

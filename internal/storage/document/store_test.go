@@ -3,6 +3,8 @@ package document
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -133,6 +135,49 @@ func TestSaveWebpageValidatesBeforeCreatingStorage(t *testing.T) {
 	}
 	if _, err := os.Stat(filepath.Join(root, documentsDirectory)); !os.IsNotExist(err) {
 		t.Fatalf("invalid result created the documents directory; Stat error = %v", err)
+	}
+}
+
+func TestLoadAndOpenResourceUsePublishedManifest(t *testing.T) {
+	root := t.TempDir()
+	store := New(root)
+	saved, err := store.SaveWebpage(storageTestResult())
+	if err != nil {
+		t.Fatal(err)
+	}
+	manifest, err := store.Load(saved.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if manifest.DocumentID != saved.ID {
+		t.Fatalf("manifest ID = %q, want %q", manifest.DocumentID, saved.ID)
+	}
+
+	var filename string
+	for _, resource := range manifest.Resources {
+		if resource.Status == ResourceStored {
+			filename = filepath.Base(resource.Path)
+			break
+		}
+	}
+	if filename == "" {
+		t.Fatal("test document did not store a resource")
+	}
+	opened, err := store.OpenResource(saved.ID, filename)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer opened.File.Close()
+	data, err := io.ReadAll(opened.File)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(data) == 0 || opened.ContentType != "image/png" {
+		t.Fatalf("opened resource type=%q bytes=%d", opened.ContentType, len(data))
+	}
+
+	if _, err := store.OpenResource(saved.ID, "../original.html"); !errors.Is(err, ErrResourceNotFound) {
+		t.Fatalf("traversal error = %v, want ErrResourceNotFound", err)
 	}
 }
 

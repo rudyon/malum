@@ -169,6 +169,11 @@ authors remain null. Extracted display-name casing is preserved; generated
 handles remove separators without arbitrarily changing visible casing. The
 initial catalogue contract is documented in `docs/catalogue.md`.
 
+The initial HTTP API performs URL imports synchronously, lists completed
+documents, loads one reader document, and serves stored document and author
+images. It binds to loopback by default and rejects private-network import
+destinations by default. The boundary is documented in `docs/http-api.md`.
+
 ## Still unresolved
 
 These questions remain deliberate product decisions rather than blanks to fill

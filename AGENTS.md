@@ -84,7 +84,9 @@ and returning to the library.
 - `internal/ingest/webpage`, `internal/storage/author`, and `internal/catalog`
   provide structured author extraction, author-specific avatar storage, and a
   SQLite catalogue. See `docs/catalogue.md`.
-- The Go HTTP API and frontend integration have not yet been implemented.
+- `internal/library`, `internal/httpapi`, and `cmd/malum` compose those pieces
+  into a loopback-by-default Go API. See `docs/http-api.md`.
+- Frontend integration has not yet been implemented.
 
 The two manual ingestion targets are Alice Maz's *Playing to Win* and *One with
 the Machine*. Neither article nor its images is checked into the repository.

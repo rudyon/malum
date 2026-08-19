@@ -73,9 +73,9 @@ checksums. Its contract is documented in `docs/document-storage.md`.
 ## Fetching and limits
 
 The importer accepts an HTTP client from its caller. Redirect policy, proxy
-configuration, DNS resolution rules, and whether private-network URLs are
-allowed therefore belong to the future API/server boundary rather than being
-silently fixed here.
+configuration, and DNS resolution rules therefore remain outside this package.
+The Go application supplies the public-network-only client defined by the
+initial server contract in `docs/http-api.md`.
 
 The package itself rejects non-HTTP(S) URLs, non-success responses, non-HTML
 documents, oversized HTML responses, and documents from which no readable
@@ -94,7 +94,6 @@ adapters or a manual repair workflow when concrete failures justify them.
 
 ## Deferred decisions
 
-- URL safety policy for the HTTP API.
 - Canonical-URL deduplication and re-import behavior.
 - HTML sanitization and rendering policy in the frontend.
 - Styling and interaction for lists, definitions, quotations, code, tables,

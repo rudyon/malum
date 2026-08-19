@@ -23,6 +23,11 @@ const (
 	resourcesDirectory = "resources"
 )
 
+var (
+	ErrDocumentNotFound = errors.New("stored document not found")
+	ErrResourceNotFound = errors.New("stored document resource not found")
+)
+
 type Store struct {
 	root  string
 	now   func() time.Time

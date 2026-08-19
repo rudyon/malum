@@ -2,6 +2,7 @@ package author
 
 import (
 	"bytes"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -50,5 +51,25 @@ func TestSaveAvatarRejectsInvalidInput(t *testing.T) {
 	}
 	if _, err := store.SaveAvatar(testAuthorID, "", "image/png", nil); err == nil || !strings.Contains(err.Error(), "image data is empty") {
 		t.Fatalf("empty data error = %v", err)
+	}
+}
+
+func TestOpenAvatarRequiresAnAuthorScopedStoredPath(t *testing.T) {
+	root := t.TempDir()
+	store := New(root)
+	saved, err := store.SaveAvatar(testAuthorID, "https://example.com/avatar.png", "image/png", []byte("avatar"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	opened, err := store.OpenAvatar(testAuthorID, saved.Path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer opened.File.Close()
+	if opened.ContentType != "image/png" || opened.Size != int64(len("avatar")) {
+		t.Fatalf("opened avatar = %#v", opened)
+	}
+	if _, err := store.OpenAvatar(testAuthorID, "authors/another/avatars/avatar.png"); !errors.Is(err, ErrAvatarNotFound) {
+		t.Fatalf("cross-author error = %v, want ErrAvatarNotFound", err)
 	}
 }

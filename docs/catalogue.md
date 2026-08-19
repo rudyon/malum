@@ -109,6 +109,7 @@ The first catalogue operations are:
 - publish a completed document bundle;
 - list document summaries;
 - retrieve one document summary;
+- retrieve one author for durable avatar serving;
 - record a locally stored author avatar.
 
 Importing and failed rows remain transient frontend state. Reading progress is

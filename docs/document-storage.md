@@ -163,12 +163,17 @@ SQLite catalogue. This ordering can leave a complete but unindexed bundle after
 a database failure, which is detectable and recoverable. It avoids catalogue
 rows that point at incomplete content.
 
+The store can load a published manifest by document ID and open a stored image
+only when its filename appears as a stored resource in that manifest. The HTTP
+layer uses this checked boundary rather than joining client-supplied paths onto
+the data root.
+
 ## Deferred decisions
 
 - Canonical-URL matching, duplicate imports, and re-import versions.
 - Catalogue recovery behavior for complete but unindexed bundles.
 - Author reassignment, merging, and splitting interactions.
 - User metadata overrides and export format.
-- API resource URLs and frontend-safe HTML sanitization.
+- Frontend-safe HTML sanitization.
 - Additional original formats, acquisition methods, and reading kinds.
 - Global resource deduplication.
