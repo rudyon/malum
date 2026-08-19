@@ -8,6 +8,15 @@ importers:
 
   .:
     dependencies:
+      '@dicebear/core':
+        specifier: ^10.6.0
+        version: 10.6.0
+      '@dicebear/styles':
+        specifier: ^10.5.0
+        version: 10.5.0
+      '@fontsource/atkinson-hyperlegible':
+        specifier: ^5.3.0
+        version: 5.3.0
       '@fontsource/cabin':
         specifier: ^5.2.8
         version: 5.3.0
@@ -53,6 +62,16 @@ importers:
         version: 8.2.1(jiti@2.7.0)
 
 packages:
+
+  '@dicebear/core@10.6.0':
+    resolution: {integrity: sha512-XZtNSGq3LZCWPa9wx+HZOWQsKnixFkxBTKjjd+fDXcQ3mRWsjZDjoGcOA2rTRpX0TXM/+8CJOsBgGOytGBBXZg==}
+    engines: {node: '>=22.0.0'}
+
+  '@dicebear/styles@10.5.0':
+    resolution: {integrity: sha512-CV5rBIe/wECQua/jct3oJCN7aNNMb7H1TUFQr5x0DWMI+82KZDeLOgw50OzEjDIW0qGHfwvfz9tRh61ZEyardA==}
+
+  '@fontsource/atkinson-hyperlegible@5.3.0':
+    resolution: {integrity: sha512-Sp8Ve8+rQmENY2Lv02VH7sLpntzTTvnncnJMTbRE7DX6TLxGraN4ykZfzaUWIoCFmaomwkvNiqmlPkrKBuDoSA==}
 
   '@fontsource/cabin@5.3.0':
     resolution: {integrity: sha512-c2NSbpO6XSqaq6E6ztHqgdNxzCPJCxkNvnSEjkQRidlL3Ycac00sS9XTRT6RfMFeB3+C7V3vgN1S40nM6lthuw==}
@@ -599,6 +618,12 @@ packages:
         optional: true
 
 snapshots:
+
+  '@dicebear/core@10.6.0': {}
+
+  '@dicebear/styles@10.5.0': {}
+
+  '@fontsource/atkinson-hyperlegible@5.3.0': {}
 
   '@fontsource/cabin@5.3.0': {}
 

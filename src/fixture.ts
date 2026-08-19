@@ -4,7 +4,11 @@ import type { ArticleDocument } from './document'
 export const sampleArticle: ArticleDocument = {
   id: 'the-cartographers-winter',
   title: "the cartographer's winter",
-  author: 'Mara Vale',
+  author: {
+    id: 'author-mara-vale',
+    name: 'Mara Vale',
+    handle: 'maravale',
+  },
   description: 'Maps, memory, and the limits of knowing a place.',
   thumbnail: {
     src: observatoryImage,
@@ -13,6 +17,14 @@ export const sampleArticle: ArticleDocument = {
   source: {
     label: 'fieldnotes.local',
     url: 'https://fieldnotes.local/cartographers-winter',
+  },
+  details: {
+    type: 'article',
+    published: 'January 14th, 2025',
+    readingTimeMinutes: 8,
+    wordCount: 1986,
+    saved: 'about 1 hour ago',
+    progressPercent: 0,
   },
   lead: [
     {

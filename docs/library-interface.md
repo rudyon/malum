@@ -1,8 +1,7 @@
 # Desktop library
 
-This document translates the Lunacy frames `Library - Empty / Desktop` and
-`Library - Populated / Desktop` into an implementation reference. Lunacy
-remains the visual source of truth.
+This document translates the current Lunacy library frames into an
+implementation reference. Lunacy remains the visual source of truth.
 
 ## Scope
 
@@ -20,30 +19,38 @@ source types are outside this slice.
 - Page background: `#090909`.
 - Application sidebar: fixed to the left edge, 300 pixels wide and viewport
   high, with 16 pixels of padding, a `#121212` background, and a one-pixel
-  right divider.
-- Brand banner: 268 pixels wide, approximately 56 pixels high, `#252525`
+  right divider. It can collapse to a 108-pixel rail containing the reopen
+  control and selected Library icon.
+- Brand banner: 268 pixels wide, approximately 61 pixels high, `#252525`
   background, and 12-pixel radius. The Malum wordmark uses Merriweather Bold at
-  32 pixels. The add control is aligned to its right.
+  36 pixels. Sidebar-close and Add controls are aligned to its right.
 - The selected Library navigation item sits below the banner. It is the only
   navigation destination currently designed; no speculative entries should be
   added.
-- Library content begins at x=300 with 16 pixels of padding.
+- With both sidebars open, library content begins at x=300 and ends at x=1140,
+  with 16 pixels of padding. The right 300 pixels contain document information.
+- Application chrome and library rows use Atkinson Hyperlegible. Article
+  reading typography remains Cabin.
 
 ## Empty state
 
-The empty state is centered within the library content region. It contains the
+The empty state is centered within the available library content region. It contains the
 muted 24-pixel text `No documents yet.` and `Add something you want to read.`,
-followed by the Add document control. The large amount of remaining empty space
-is intentional.
+followed by the Add document control. The Info sidebar is not present when no
+document can be previewed. The large amount of remaining empty space is
+intentional.
 
 ## Library rows
 
-- Rows are 1108 pixels wide and 126 pixels high with eight pixels of vertical
-  inset and a 16-pixel gap between thumbnail and information.
+- With both sidebars open, rows are 809 pixels wide and 126 pixels high with
+  eight pixels of inset and an 8-pixel gap between thumbnail and information.
 - A ready row has a 110-pixel square image with an 8-pixel radius. Its title is
-  Cabin Bold at 36 pixels. Description and metadata are 24 pixels; secondary
-  information is `#868686`.
+  Atkinson Hyperlegible Bold at 36 pixels. Description and metadata are 24
+  pixels; secondary information is `#868686`.
 - A ready row is the navigation target for its reader route.
+- The first ready document supplies the initial Info preview. Hovering or
+  keyboard-focusing another ready row changes the preview; leaving the row does
+  not clear it. Clicking continues to open the document.
 - An importing row shows the submitted URL as its temporary title and an
   `Importing...` status. Its appearance is muted, but implementation should use
   explicit subdued colors instead of reducing opacity on the whole row. A
@@ -68,3 +75,17 @@ DaisyUI theme.
 - The reader sidebar begins with a back control returning to `/library`, above
   the table of contents.
 
+## Document information
+
+The fixed right sidebar is 300 pixels wide, uses the same `#121212` surface and
+divider treatment as the application sidebar, and can be closed independently.
+Its header contains the reopen/close affordance and centered `Info` label. The
+body shows the document title, source domain, author, type, optional publication
+date, length, saved time, and progress.
+
+An author is a nullable first-class entity with a stable internal handle. A
+known author without a supplied image receives a deterministic local DiceBear
+Line Face avatar, using the handle as its seed, background `#f4f1ea`, and scale
+`1.3`. A null author renders the checked-in Unknown Author SVG together with
+`Unknown author` and `@unknown`; it does not create or imply a shared author
+record. Optional metadata rows with no value are omitted.

@@ -25,10 +25,29 @@ export type ArticleSection = {
   blocks: ArticleBlock[]
 }
 
+export type Author = {
+  id: string
+  name: string
+  handle: string
+  avatar?: {
+    src: string
+    alt: string
+  }
+}
+
+export type DocumentDetails = {
+  type: string
+  published?: string
+  readingTimeMinutes: number
+  wordCount: number
+  saved: string
+  progressPercent: number
+}
+
 export type ArticleDocument = {
   id: string
   title: string
-  author: string
+  author: Author | null
   description: string
   thumbnail: {
     src: string
@@ -38,6 +57,7 @@ export type ArticleDocument = {
     label: string
     url: string
   }
+  details: DocumentDetails
   lead: ArticleBlock[]
   sections: ArticleSection[]
 }
