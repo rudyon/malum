@@ -146,19 +146,32 @@ A minimal HTTP executable was discussed only as a way to make the selected
 client/server architecture concrete. It is infrastructure, not a meaningful
 Malum feature or a visual prototype.
 
+## Decisions established by the first milestone
+
+The first end-to-end capability is a deliberately saved URL that becomes a
+durable article in the library and opens in the reader. Its interface is
+documented in `docs/library-interface.md` and `docs/reader-interface.md`.
+
+The first acquisition method is URL retrieval, the first preserved original
+format is HTML, and the first normalized reading kind is article. These are
+independent concepts rather than one `webpage` type. Retrieval and extraction
+are documented in `docs/webpage-ingestion.md`.
+
+Original HTML, normalized article HTML, typed article structure, and downloaded
+resources are stored together in a recoverable filesystem bundle. SQLite will
+later catalogue those bundles and own mutable Malum state. The boundary is
+documented in `docs/document-storage.md`.
+
 ## Still unresolved
 
-These questions have not been answered and should not be silently decided by
-scaffolding or implementation convenience:
+These questions remain deliberate product decisions rather than blanks to fill
+through implementation convenience:
 
-- What is the first genuinely useful capability to implement?
-- Which concepts and states constitute Malum's initial document model?
 - What are the precise roles and transitions among inbox, feed, library, and
   archive?
-- What should Malum look and feel like?
-- Which reading format or source should be supported first?
-- How should saved originals and normalized representations be stored?
-- What is the first visible interface that can be built without becoming either
-  a disposable mockup or a low-quality foundation?
-
-These are product decisions to make deliberately, one at a time.
+- Which additional concepts and states belong in the document model as reading
+  progress, annotation, and other formats are introduced?
+- How should duplicate URLs, canonical URLs, and re-imports behave?
+- How should extracted bylines be resolved to internal authors?
+- What sanitization and rendering policy should apply to normalized HTML?
+- Which acquisition method or original format should follow saved HTML pages?

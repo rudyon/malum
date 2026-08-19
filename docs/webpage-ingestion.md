@@ -19,9 +19,10 @@ HTML fixtures.
 
 An import result contains three related representations:
 
-1. **Original response** — the exact HTML bytes returned by the source, together
-   with requested URL, final URL after redirects, and content type. A future
-   storage layer must retain these bytes in an ordinary recoverable file.
+1. **Original response** — the exact HTML response-body bytes returned by the
+   source, together with requested URL, final URL after redirects, and content
+   type. The document storage layer retains these bytes in an ordinary
+   recoverable file.
 2. **Cleaned article HTML** — the main content selected and cleaned by
    Readability. This preserves inline meaning such as links and emphasis, plus
    structures the current reader does not render yet. It is normalized input,
@@ -54,9 +55,9 @@ bytes and content type to its caller. An individual image failure does not
 discard an otherwise readable document; it produces a warning and leaves the
 remote source URL in the normalized content.
 
-The future storage layer is responsible for choosing durable filenames,
-writing the returned bytes, rewriting normalized references to local URLs, and
-recording checksums.
+The document storage layer chooses durable filenames, writes the returned
+bytes, rewrites normalized references to relative local paths, and records
+checksums. Its contract is documented in `docs/document-storage.md`.
 
 ## Fetching and limits
 
@@ -82,12 +83,9 @@ adapters or a manual repair workflow when concrete failures justify them.
 
 ## Deferred decisions
 
-- SQLite tables and filesystem layout.
-- Durable document and resource identifiers.
 - URL safety policy for the HTTP API.
 - Canonical-URL deduplication and re-import behavior.
 - Author matching, handle generation, reassignment, and merging.
 - HTML sanitization and rendering policy in the frontend.
 - Styling and interaction for lists, definitions, quotations, code, tables,
   and other structures not yet designed in the reader.
-
