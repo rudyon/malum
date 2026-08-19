@@ -81,11 +81,13 @@ and returning to the library.
   resources. See `docs/webpage-ingestion.md`.
 - `internal/storage/document` writes imported webpages as atomic, recoverable
   document bundles. See `docs/document-storage.md`.
-- SQLite cataloguing, the Go HTTP API, and frontend integration have not yet
-  been implemented.
+- `internal/ingest/webpage`, `internal/storage/author`, and `internal/catalog`
+  provide structured author extraction, author-specific avatar storage, and a
+  SQLite catalogue. See `docs/catalogue.md`.
+- The Go HTTP API and frontend integration have not yet been implemented.
 
-The Alice Maz article *Playing to Win* is the manual ingestion target. It is
-never checked into the repository.
+The two manual ingestion targets are Alice Maz's *Playing to Win* and *One with
+the Machine*. Neither article nor its images is checked into the repository.
 
 ## Implementation sequence
 

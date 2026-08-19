@@ -25,22 +25,38 @@ type Snapshot struct {
 }
 
 type Document struct {
-	SourceURL          string        `json:"sourceUrl"`
-	Title              string        `json:"title"`
-	Byline             string        `json:"byline,omitempty"`
-	SiteName           string        `json:"siteName"`
-	Language           string        `json:"language,omitempty"`
-	Excerpt            string        `json:"excerpt,omitempty"`
-	PublishedAt        *time.Time    `json:"publishedAt,omitempty"`
-	ModifiedAt         *time.Time    `json:"modifiedAt,omitempty"`
-	WordCount          int           `json:"wordCount"`
-	ReadingTimeMinutes int           `json:"readingTimeMinutes"`
-	LeadImageURL       string        `json:"leadImageUrl,omitempty"`
-	ContentHTML        string        `json:"contentHtml"`
-	Blocks             []Block       `json:"blocks"`
-	Outline            []OutlineItem `json:"outline"`
-	Resources          []Resource    `json:"resources"`
-	Warnings           []Warning     `json:"warnings,omitempty"`
+	SourceURL          string            `json:"sourceUrl"`
+	Title              string            `json:"title"`
+	Byline             string            `json:"byline,omitempty"`
+	SiteName           string            `json:"siteName"`
+	Language           string            `json:"language,omitempty"`
+	Excerpt            string            `json:"excerpt,omitempty"`
+	PublishedAt        *time.Time        `json:"publishedAt,omitempty"`
+	ModifiedAt         *time.Time        `json:"modifiedAt,omitempty"`
+	WordCount          int               `json:"wordCount"`
+	ReadingTimeMinutes int               `json:"readingTimeMinutes"`
+	LeadImageURL       string            `json:"leadImageUrl,omitempty"`
+	AuthorCandidates   []AuthorCandidate `json:"authorCandidates,omitempty"`
+	ContentHTML        string            `json:"contentHtml"`
+	Blocks             []Block           `json:"blocks"`
+	Outline            []OutlineItem     `json:"outline"`
+	Resources          []Resource        `json:"resources"`
+	Warnings           []Warning         `json:"warnings,omitempty"`
+}
+
+type AuthorCandidate struct {
+	Name             string           `json:"name"`
+	ImageURL         string           `json:"imageUrl,omitempty"`
+	ProfileURL       string           `json:"profileUrl,omitempty"`
+	Identities       []AuthorIdentity `json:"identities,omitempty"`
+	Evidence         string           `json:"evidence"`
+	ImageContentType string           `json:"imageContentType,omitempty"`
+	ImageData        []byte           `json:"-"`
+}
+
+type AuthorIdentity struct {
+	Kind  string `json:"kind"`
+	Value string `json:"value"`
 }
 
 type Block struct {

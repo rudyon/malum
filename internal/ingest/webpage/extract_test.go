@@ -20,7 +20,7 @@ func TestExtractProjectsReadableArticle(t *testing.T) {
 	if document.Title != "A Map of Quiet Weather" {
 		t.Fatalf("title = %q", document.Title)
 	}
-	if document.Byline != "Iris Bell" {
+	if document.Byline != "iris bell" {
 		t.Fatalf("byline = %q", document.Byline)
 	}
 	if document.SiteName != "Field Notes" {
@@ -37,6 +37,16 @@ func TestExtractProjectsReadableArticle(t *testing.T) {
 	}
 	if document.ContentHTML == "" {
 		t.Fatal("cleaned HTML is empty")
+	}
+	if len(document.AuthorCandidates) != 1 {
+		t.Fatalf("author candidates = %#v", document.AuthorCandidates)
+	}
+	author := document.AuthorCandidates[0]
+	if author.Name != "iris bell" || author.ProfileURL != "https://fieldnotes.example/people/iris" || author.ImageURL != "https://fieldnotes.example/images/iris.jpg" || author.Evidence != "json-ld" {
+		t.Fatalf("structured author = %#v", author)
+	}
+	if len(author.Identities) != 3 {
+		t.Fatalf("author identities = %#v", author.Identities)
 	}
 
 	wantKinds := map[BlockKind]bool{
@@ -80,6 +90,17 @@ func TestExtractProjectsReadableArticle(t *testing.T) {
 	}
 	if len(document.Resources) != 2 {
 		t.Fatalf("resources = %#v", document.Resources)
+	}
+}
+
+func TestExtractFallsBackToReadabilityByline(t *testing.T) {
+	html := []byte(`<!doctype html><html><head><title>Fallback</title><meta name="author" content="rudyon"></head><body><article><h1>Fallback</h1><p>This paragraph contains enough original prose for Readability to identify it as the main article content rather than incidental navigation.</p></article></body></html>`)
+	document, err := Extract("https://example.test/fallback", html)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(document.AuthorCandidates) != 1 || document.AuthorCandidates[0].Name != "rudyon" || document.AuthorCandidates[0].Evidence != "readability-byline" {
+		t.Fatalf("author candidates = %#v", document.AuthorCandidates)
 	}
 }
 

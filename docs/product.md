@@ -158,9 +158,16 @@ independent concepts rather than one `webpage` type. Retrieval and extraction
 are documented in `docs/webpage-ingestion.md`.
 
 Original HTML, normalized article HTML, typed article structure, and downloaded
-resources are stored together in a recoverable filesystem bundle. SQLite will
-later catalogue those bundles and own mutable Malum state. The boundary is
-documented in `docs/document-storage.md`.
+resources are stored together in a recoverable filesystem bundle. SQLite
+catalogues those bundles and authors and will own later mutable Malum state.
+The boundary is documented in `docs/document-storage.md` and
+`docs/catalogue.md`.
+
+Author metadata is best-effort and user-correctable. Structured identities are
+preferred, exact normalized names may provide a fallback match, and missing
+authors remain null. Extracted display-name casing is preserved; generated
+handles remove separators without arbitrarily changing visible casing. The
+initial catalogue contract is documented in `docs/catalogue.md`.
 
 ## Still unresolved
 
@@ -172,6 +179,5 @@ through implementation convenience:
 - Which additional concepts and states belong in the document model as reading
   progress, annotation, and other formats are introduced?
 - How should duplicate URLs, canonical URLs, and re-imports behave?
-- How should extracted bylines be resolved to internal authors?
 - What sanitization and rendering policy should apply to normalized HTML?
 - Which acquisition method or original format should follow saved HTML pages?

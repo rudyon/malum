@@ -11,9 +11,9 @@ the primary readable article, describes its remote image resources, and returns
 a normalized document. It does not write SQLite rows, choose filesystem paths,
 create Malum authors, expose HTTP routes, or update the frontend.
 
-The initial manual target is Alice Maz's *Playing to Win*. That article and its
-images are not committed to the repository. Automated tests use small original
-HTML fixtures.
+The initial manual targets are Alice Maz's *Playing to Win* and *One with the
+Machine*. Those articles and their images are not committed to the repository.
+Automated tests use small original HTML fixtures.
 
 ## Result boundary
 
@@ -40,12 +40,23 @@ warnings.
 
 ## Authors
 
-The importer extracts a raw byline when the page provides one. It does not
-create an internal author handle or decide that similarly named bylines belong
-to the same person. That later author-resolution step may create a provisional
-author, match an existing one, or leave `author_id` null. A missing byline is a
-successful import and will eventually render through the agreed `Unknown
-author` / `@unknown` presentation.
+The importer preserves the raw Readability byline and separately extracts
+structured author candidates. JSON-LD `author` metadata is the preferred
+signal. A candidate may contain an exact display name, image URL, profile URL,
+and structured identities such as `@id`, `identifier`, or `sameAs`, together
+with the evidence source.
+
+When no structured candidate exists, a non-empty Readability byline becomes a
+fallback candidate. The importer does not generate an internal handle or decide
+whether candidates from different documents are the same person; that belongs
+to the catalogue contract in `docs/catalogue.md`.
+
+Display-name casing is preserved. A missing author is a successful import and
+renders through the agreed `Unknown author` / `@unknown` presentation.
+
+When a structured candidate provides an image, the importer attempts to fetch
+it under the same bounded image policy used for article resources. Failure adds
+a warning but does not fail the document.
 
 ## Images
 
@@ -85,7 +96,6 @@ adapters or a manual repair workflow when concrete failures justify them.
 
 - URL safety policy for the HTTP API.
 - Canonical-URL deduplication and re-import behavior.
-- Author matching, handle generation, reassignment, and merging.
 - HTML sanitization and rendering policy in the frontend.
 - Styling and interaction for lists, definitions, quotations, code, tables,
   and other structures not yet designed in the reader.

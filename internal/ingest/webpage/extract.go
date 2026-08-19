@@ -78,6 +78,7 @@ func Extract(pageURL string, originalHTML []byte) (Document, error) {
 	if modifiedAt, err := article.ModifiedTime(); err == nil && !modifiedAt.IsZero() {
 		document.ModifiedAt = &modifiedAt
 	}
+	document.AuthorCandidates = extractAuthorCandidates(contentBaseURL, originalHTML, document.Byline)
 	document.Resources = collectResources(document)
 
 	return document, nil

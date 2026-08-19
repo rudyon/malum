@@ -42,21 +42,22 @@ type Original struct {
 }
 
 type Article struct {
-	Path               string                `json:"path"`
-	SHA256             string                `json:"sha256"`
-	Size               int64                 `json:"size"`
-	Title              string                `json:"title"`
-	Byline             string                `json:"byline,omitempty"`
-	SiteName           string                `json:"siteName"`
-	Language           string                `json:"language,omitempty"`
-	Excerpt            string                `json:"excerpt,omitempty"`
-	PublishedAt        *time.Time            `json:"publishedAt,omitempty"`
-	ModifiedAt         *time.Time            `json:"modifiedAt,omitempty"`
-	WordCount          int                   `json:"wordCount"`
-	ReadingTimeMinutes int                   `json:"readingTimeMinutes"`
-	LeadImageURL       string                `json:"leadImageUrl,omitempty"`
-	Blocks             []webpage.Block       `json:"blocks"`
-	Outline            []webpage.OutlineItem `json:"outline"`
+	Path               string                    `json:"path"`
+	SHA256             string                    `json:"sha256"`
+	Size               int64                     `json:"size"`
+	Title              string                    `json:"title"`
+	Byline             string                    `json:"byline,omitempty"`
+	SiteName           string                    `json:"siteName"`
+	Language           string                    `json:"language,omitempty"`
+	Excerpt            string                    `json:"excerpt,omitempty"`
+	PublishedAt        *time.Time                `json:"publishedAt,omitempty"`
+	ModifiedAt         *time.Time                `json:"modifiedAt,omitempty"`
+	WordCount          int                       `json:"wordCount"`
+	ReadingTimeMinutes int                       `json:"readingTimeMinutes"`
+	LeadImageURL       string                    `json:"leadImageUrl,omitempty"`
+	AuthorCandidates   []webpage.AuthorCandidate `json:"authorCandidates,omitempty"`
+	Blocks             []webpage.Block           `json:"blocks"`
+	Outline            []webpage.OutlineItem     `json:"outline"`
 }
 
 type ResourceStatus string

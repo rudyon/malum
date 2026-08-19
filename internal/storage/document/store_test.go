@@ -64,6 +64,9 @@ func TestSaveWebpageWritesRecoverableBundle(t *testing.T) {
 	if bytes.Contains(manifestBytes, []byte("contentHtml")) || bytes.Contains(manifestBytes, result.Document.Resources[0].Data) {
 		t.Fatal("document.json contains representation or resource bodies")
 	}
+	if bytes.Contains(manifestBytes, result.Document.AuthorCandidates[0].ImageData) {
+		t.Fatal("document.json contains downloaded author avatar bytes")
+	}
 
 	var manifest Manifest
 	if err := json.Unmarshal(manifestBytes, &manifest); err != nil {
@@ -133,19 +136,6 @@ func TestSaveWebpageValidatesBeforeCreatingStorage(t *testing.T) {
 	}
 }
 
-func TestRandomUUIDProducesValidVersionFourUUID(t *testing.T) {
-	id, err := randomUUID()
-	if err != nil {
-		t.Fatalf("randomUUID() error = %v", err)
-	}
-	if !validUUID(id) {
-		t.Fatalf("randomUUID() = %q; want valid UUID", id)
-	}
-	if id[14] != '4' || (id[19] != '8' && id[19] != '9' && id[19] != 'a' && id[19] != 'b') {
-		t.Fatalf("randomUUID() = %q; want RFC 4122 version 4 and variant bits", id)
-	}
-}
-
 func fixedStore(root string) *Store {
 	store := New(root)
 	store.now = func() time.Time { return fixedStoredAt }
@@ -172,6 +162,15 @@ func storageTestResult() webpage.Result {
 			WordCount:          500,
 			ReadingTimeMinutes: 2,
 			LeadImageURL:       "https://cdn.example/lead.png",
+			AuthorCandidates: []webpage.AuthorCandidate{
+				{
+					Name:             "mara vale",
+					ImageURL:         "https://cdn.example/mara.png",
+					Evidence:         "json-ld",
+					ImageContentType: "image/png",
+					ImageData:        []byte("fictional author avatar bytes"),
+				},
+			},
 			ContentHTML: `<article>
   <img src="https://cdn.example/lead.png" alt="Lead">
   <p>Original fixture prose.</p>
@@ -214,6 +213,9 @@ func assertManifest(t *testing.T, manifest Manifest, result webpage.Result, imag
 	}
 	if len(manifest.Article.Blocks) != len(result.Document.Blocks) || manifest.Article.Blocks[0].Image.URL != result.Document.Blocks[0].Image.URL {
 		t.Fatalf("manifest typed blocks lost source provenance: %#v", manifest.Article.Blocks)
+	}
+	if len(manifest.Article.AuthorCandidates) != 1 || manifest.Article.AuthorCandidates[0].Name != "mara vale" || len(manifest.Article.AuthorCandidates[0].ImageData) != 0 {
+		t.Fatalf("manifest author candidates = %#v", manifest.Article.AuthorCandidates)
 	}
 	if len(manifest.Resources) != 3 {
 		t.Fatalf("manifest resources = %d; want 3", len(manifest.Resources))

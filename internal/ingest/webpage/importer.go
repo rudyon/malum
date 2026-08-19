@@ -61,7 +61,8 @@ func (i Importer) Import(ctx context.Context, rawURL string) (Result, error) {
 		return Result{}, err
 	}
 	document.SourceURL = snapshot.FinalURL
-	i.fetchResources(ctx, &document)
+	totalBytes := i.fetchResources(ctx, &document)
+	i.fetchAuthorImages(ctx, &document, totalBytes)
 
 	return Result{Snapshot: snapshot, Document: document}, nil
 }
@@ -109,7 +110,7 @@ func (i Importer) fetchPage(ctx context.Context, rawURL string) (Snapshot, error
 	}, nil
 }
 
-func (i Importer) fetchResources(ctx context.Context, document *Document) {
+func (i Importer) fetchResources(ctx context.Context, document *Document) int64 {
 	var totalBytes int64
 	for index := range document.Resources {
 		resource := &document.Resources[index]
@@ -160,6 +161,66 @@ func (i Importer) fetchResources(ctx context.Context, document *Document) {
 		resource.Data = data
 		totalBytes += int64(len(data))
 	}
+	return totalBytes
+}
+
+func (i Importer) fetchAuthorImages(ctx context.Context, document *Document, totalBytes int64) {
+	for index := range document.AuthorCandidates {
+		candidate := &document.AuthorCandidates[index]
+		if candidate.ImageURL == "" {
+			continue
+		}
+		remaining := i.maxTotalResourceBytes() - totalBytes
+		if remaining <= 0 {
+			document.Warnings = append(document.Warnings, Warning{
+				Code:    "resource-total-limit",
+				URL:     candidate.ImageURL,
+				Message: "author image was not fetched because the import reached its total image byte limit",
+			})
+			continue
+		}
+
+		contentType, data, err := i.fetchImage(ctx, candidate.ImageURL, min(i.maxResourceBytes(), remaining))
+		if err != nil {
+			document.Warnings = append(document.Warnings, Warning{
+				Code:    "author-image-fetch-failed",
+				URL:     candidate.ImageURL,
+				Message: err.Error(),
+			})
+			continue
+		}
+		candidate.ImageContentType = contentType
+		candidate.ImageData = data
+		totalBytes += int64(len(data))
+	}
+}
+
+func (i Importer) fetchImage(ctx context.Context, imageURL string, limit int64) (string, []byte, error) {
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, imageURL, nil)
+	if err != nil {
+		return "", nil, err
+	}
+	request.Header.Set("Accept", "image/*")
+	request.Header.Set("User-Agent", i.userAgent())
+
+	response, err := i.Client.Do(request)
+	if err != nil {
+		return "", nil, err
+	}
+	defer response.Body.Close()
+	if response.StatusCode < 200 || response.StatusCode >= 300 {
+		return "", nil, fmt.Errorf("unexpected HTTP status %s", response.Status)
+	}
+	contentType := response.Header.Get("Content-Type")
+	mediaType, _, err := mime.ParseMediaType(contentType)
+	if err != nil || !strings.HasPrefix(mediaType, "image/") {
+		return "", nil, fmt.Errorf("unsupported image content type %q", contentType)
+	}
+	data, err := readLimited(response.Body, limit, ErrResourceTooLarge)
+	if err != nil {
+		return "", nil, err
+	}
+	return mediaType, data, nil
 }
 
 func (i Importer) warnResource(document *Document, resourceURL string, err error) {

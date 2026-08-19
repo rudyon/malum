@@ -26,6 +26,9 @@ func TestImporterPreservesHTMLAndFetchesImages(t *testing.T) {
 		case "/images/station.jpg":
 			writer.Header().Set("Content-Type", "image/jpeg")
 			_, _ = writer.Write([]byte("local-image-bytes"))
+		case "/images/iris.jpg":
+			writer.Header().Set("Content-Type", "image/jpeg")
+			_, _ = writer.Write([]byte("author-image-bytes"))
 		default:
 			http.NotFound(writer, request)
 		}
@@ -54,6 +57,9 @@ func TestImporterPreservesHTMLAndFetchesImages(t *testing.T) {
 	}
 	if !fetchedImage {
 		t.Fatalf("image resources = %#v", result.Document.Resources)
+	}
+	if len(result.Document.AuthorCandidates) != 1 || result.Document.AuthorCandidates[0].ImageContentType != "image/jpeg" || string(result.Document.AuthorCandidates[0].ImageData) != "author-image-bytes" {
+		t.Fatalf("author candidates = %#v", result.Document.AuthorCandidates)
 	}
 	if len(result.Document.Warnings) != 1 || !strings.HasSuffix(result.Document.Warnings[0].URL, "/images/missing.jpg") {
 		t.Fatalf("warnings = %#v", result.Document.Warnings)

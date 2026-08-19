@@ -1,7 +1,6 @@
 package document
 
 import (
-	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -12,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/rudyon/malum/internal/identifier"
 	"github.com/rudyon/malum/internal/ingest/webpage"
 )
 
@@ -33,7 +33,7 @@ func New(root string) *Store {
 	return &Store{
 		root:  root,
 		now:   time.Now,
-		newID: randomUUID,
+		newID: identifier.NewUUID,
 	}
 }
 
@@ -49,7 +49,7 @@ func (s *Store) SaveWebpage(result webpage.Result) (saved Saved, err error) {
 	if err != nil {
 		return Saved{}, fmt.Errorf("generate document ID: %w", err)
 	}
-	if !validUUID(documentID) {
+	if !identifier.IsUUID(documentID) {
 		return Saved{}, fmt.Errorf("generate document ID: invalid UUID %q", documentID)
 	}
 
@@ -208,6 +208,7 @@ func buildManifest(
 			WordCount:          document.WordCount,
 			ReadingTimeMinutes: document.ReadingTimeMinutes,
 			LeadImageURL:       document.LeadImageURL,
+			AuthorCandidates:   document.AuthorCandidates,
 			Blocks:             document.Blocks,
 			Outline:            document.Outline,
 		},
@@ -255,30 +256,4 @@ func imageExtension(contentType string) string {
 	default:
 		return ".img"
 	}
-}
-
-func randomUUID() (string, error) {
-	var value [16]byte
-	if _, err := rand.Read(value[:]); err != nil {
-		return "", err
-	}
-	value[6] = (value[6] & 0x0f) | 0x40
-	value[8] = (value[8] & 0x3f) | 0x80
-	encoded := hex.EncodeToString(value[:])
-	return encoded[0:8] + "-" + encoded[8:12] + "-" + encoded[12:16] + "-" + encoded[16:20] + "-" + encoded[20:32], nil
-}
-
-func validUUID(value string) bool {
-	if len(value) != 36 || value[8] != '-' || value[13] != '-' || value[18] != '-' || value[23] != '-' {
-		return false
-	}
-	for index, character := range value {
-		if index == 8 || index == 13 || index == 18 || index == 23 {
-			continue
-		}
-		if !(character >= '0' && character <= '9') && !(character >= 'a' && character <= 'f') {
-			return false
-		}
-	}
-	return true
 }

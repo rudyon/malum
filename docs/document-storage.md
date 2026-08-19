@@ -30,8 +30,9 @@ to have been fetched from a webpage.
 ## Filesystem and SQLite responsibilities
 
 Ordinary files preserve the acquired material and its normalized reading
-representation. SQLite will later contain Malum's catalogue, relationships,
-search indexes, and mutable user state.
+representation. SQLite contains Malum's catalogue and author relationships;
+later catalogue migrations will add search indexes and mutable reading state
+when their behavior is designed.
 
 Large HTML and image bodies do not belong in SQLite. Progress, author
 associations, highlights, notes, inbox or archive state, and user metadata
@@ -49,7 +50,7 @@ location.
 
 ```text
 <data-root>/
-├── malum.db                         # Future SQLite catalogue
+├── malum.db                         # SQLite catalogue
 └── documents/
     └── <document-id>/
         ├── document.json
@@ -105,6 +106,8 @@ human-inspectable and begins with a storage schema version. Version 1 records:
 - title, raw extracted byline, site name, language, excerpt, publication and
   modification times, word count, reading-time estimate, and lead-image URL;
 - typed article blocks and heading outline;
+- raw byline and structured author candidates, excluding downloaded avatar
+  bodies;
 - stored and unavailable resource records;
 - non-fatal ingestion warnings.
 
@@ -116,8 +119,10 @@ original.format    = "html"
 readingKind        = "article"
 ```
 
-The raw byline is provenance, not an internal author identity. This bundle does
-not generate author handles or create author records.
+The raw byline and structured author candidates are provenance, not internal
+author identities. This bundle does not generate handles or create author
+records. Downloaded author-avatar bytes are held for author-specific storage
+and are not embedded in `document.json`.
 
 ## Resources
 
@@ -153,18 +158,17 @@ Temporary directories are implementation details and are removed after a
 failed save where possible. A future startup repair task may remove abandoned
 temporary directories left by process or machine interruption.
 
-When SQLite is introduced, the bundle will be completed before a database
-transaction publishes it in the catalogue. This ordering can leave a complete
-but unindexed bundle after a database failure, which is detectable and
-recoverable. It avoids catalogue rows that point at incomplete content.
+The bundle is completed before a database transaction publishes it in the
+SQLite catalogue. This ordering can leave a complete but unindexed bundle after
+a database failure, which is detectable and recoverable. It avoids catalogue
+rows that point at incomplete content.
 
 ## Deferred decisions
 
 - Canonical-URL matching, duplicate imports, and re-import versions.
-- SQLite tables and catalogue recovery behavior.
-- Author matching, reassignment, and merging.
+- Catalogue recovery behavior for complete but unindexed bundles.
+- Author reassignment, merging, and splitting interactions.
 - User metadata overrides and export format.
 - API resource URLs and frontend-safe HTML sanitization.
 - Additional original formats, acquisition methods, and reading kinds.
 - Global resource deduplication.
-
