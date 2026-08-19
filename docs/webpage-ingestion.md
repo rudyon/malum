@@ -1,0 +1,93 @@
+# Webpage ingestion
+
+This document records the first webpage-import contract. It describes the
+boundary implemented by `internal/ingest/webpage`; it is not a complete storage
+or API design.
+
+## Scope
+
+The importer accepts one webpage URL, retrieves the original response, extracts
+the primary readable article, describes its remote image resources, and returns
+a normalized document. It does not write SQLite rows, choose filesystem paths,
+create Malum authors, expose HTTP routes, or update the frontend.
+
+The initial manual target is Alice Maz's *Playing to Win*. That article and its
+images are not committed to the repository. Automated tests use small original
+HTML fixtures.
+
+## Result boundary
+
+An import result contains three related representations:
+
+1. **Original response** — the exact HTML bytes returned by the source, together
+   with requested URL, final URL after redirects, and content type. A future
+   storage layer must retain these bytes in an ordinary recoverable file.
+2. **Cleaned article HTML** — the main content selected and cleaned by
+   Readability. This preserves inline meaning such as links and emphasis, plus
+   structures the current reader does not render yet. It is normalized input,
+   not browser-trusted HTML; the frontend must sanitize it before direct HTML
+   rendering.
+3. **Typed block projection** — ordered headings, paragraphs, images, lists,
+   definitions, quotations, preformatted text, dividers, and retained HTML
+   fragments. This supplies stable structure for a reader and a table of
+   contents without making extraction depend on fixture wording.
+
+The normalized metadata currently includes title, raw extracted byline, site
+name, language, excerpt, publication and modification times when present, word
+count, estimated reading time, lead image URL, a flat heading outline, and
+warnings.
+
+## Authors
+
+The importer extracts a raw byline when the page provides one. It does not
+create an internal author handle or decide that similarly named bylines belong
+to the same person. That later author-resolution step may create a provisional
+author, match an existing one, or leave `author_id` null. A missing byline is a
+successful import and will eventually render through the agreed `Unknown
+author` / `@unknown` presentation.
+
+## Images
+
+Image URLs are resolved against the final page URL and deduplicated into a
+resource manifest. The importer attempts to retrieve them and returns their
+bytes and content type to its caller. An individual image failure does not
+discard an otherwise readable document; it produces a warning and leaves the
+remote source URL in the normalized content.
+
+The future storage layer is responsible for choosing durable filenames,
+writing the returned bytes, rewriting normalized references to local URLs, and
+recording checksums.
+
+## Fetching and limits
+
+The importer accepts an HTTP client from its caller. Redirect policy, proxy
+configuration, DNS resolution rules, and whether private-network URLs are
+allowed therefore belong to the future API/server boundary rather than being
+silently fixed here.
+
+The package itself rejects non-HTTP(S) URLs, non-success responses, non-HTML
+documents, oversized HTML responses, and documents from which no readable
+content can be obtained. Page, per-image, and total-image byte limits prevent
+unbounded reads.
+
+## Extraction engine
+
+Malum uses `codeberg.org/readeck/go-readability/v2`, the maintained successor to
+the archived `github.com/go-shiori/go-readability` package. It follows Mozilla
+Readability 0.6 and returns both metadata and a cleaned content DOM.
+
+Readability is a strong default, not an assertion that every webpage can be
+normalized automatically. A later ingestion system may add site-specific
+adapters or a manual repair workflow when concrete failures justify them.
+
+## Deferred decisions
+
+- SQLite tables and filesystem layout.
+- Durable document and resource identifiers.
+- URL safety policy for the HTTP API.
+- Canonical-URL deduplication and re-import behavior.
+- Author matching, handle generation, reassignment, and merging.
+- HTML sanitization and rendering policy in the frontend.
+- Styling and interaction for lists, definitions, quotations, code, tables,
+  and other structures not yet designed in the reader.
+
