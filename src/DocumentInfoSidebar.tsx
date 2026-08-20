@@ -19,10 +19,13 @@ function MetadataEntry({ label, value }: { label: string; value: string }) {
 export function DocumentInfoSidebar({ article, onClose }: DocumentInfoSidebarProps) {
   const authorName = article.author?.name ?? 'Unknown author'
   const authorHandle = article.author?.handle ?? 'unknown'
-  const minutesLeft = Math.max(
-    0,
-    Math.round(article.details.readingTimeMinutes * (1 - article.details.progressPercent / 100)),
-  )
+  const minutesLeft =
+    article.details.progressPercent === undefined
+      ? undefined
+      : Math.max(
+          0,
+          Math.round(article.details.readingTimeMinutes * (1 - article.details.progressPercent / 100)),
+        )
 
   return (
     <aside className="document-info-sidebar" aria-label="Document information">
@@ -63,10 +66,12 @@ export function DocumentInfoSidebar({ article, onClose }: DocumentInfoSidebarPro
           value={`${article.details.readingTimeMinutes} mins (${article.details.wordCount} words)`}
         />
         <MetadataEntry label="Saved" value={article.details.saved} />
-        <MetadataEntry
-          label="Progress"
-          value={`${article.details.progressPercent}% (${minutesLeft} mins left)`}
-        />
+        {article.details.progressPercent !== undefined && minutesLeft !== undefined ? (
+          <MetadataEntry
+            label="Progress"
+            value={`${article.details.progressPercent}% (${minutesLeft} mins left)`}
+          />
+        ) : null}
       </dl>
     </aside>
   )

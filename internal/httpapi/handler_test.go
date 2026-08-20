@@ -71,6 +71,20 @@ func TestGetDocumentProjectsStoredBlockImages(t *testing.T) {
 	}
 }
 
+func TestGetDocumentReturnsEmptyContentCollectionsAsArrays(t *testing.T) {
+	service := &fakeLibrary{reader: library.ReaderDocument{
+		Document: testDocument(),
+		Manifest: documentstore.Manifest{Article: documentstore.Article{}},
+	}}
+	response := performRequest(t, service, http.MethodGet, "/api/documents/"+testDocumentID, nil)
+	if response.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %s", response.Code, response.Body.String())
+	}
+	if !strings.Contains(response.Body.String(), `"content":{"blocks":[],"outline":[]}`) {
+		t.Fatalf("empty content collections were not arrays: %s", response.Body.String())
+	}
+}
+
 func TestImportDocumentValidatesJSONAndReturnsCreatedDocument(t *testing.T) {
 	service := &fakeLibrary{imported: library.ImportedDocument{Document: testDocument()}}
 	response := performRequest(t, service, http.MethodPost, "/api/documents", strings.NewReader(`{"url":"https://example.test/article"}`))
@@ -79,6 +93,9 @@ func TestImportDocumentValidatesJSONAndReturnsCreatedDocument(t *testing.T) {
 	}
 	if service.importURL != "https://example.test/article" {
 		t.Fatalf("import URL = %q", service.importURL)
+	}
+	if !strings.Contains(response.Body.String(), `"warnings":[]`) {
+		t.Fatalf("empty warnings were not an array: %s", response.Body.String())
 	}
 
 	invalid := performRequest(t, service, http.MethodPost, "/api/documents", strings.NewReader(`{"url":"file:///secret"}`))
@@ -103,6 +120,14 @@ func TestImportRejectsPrivateNetworkDestinationClearly(t *testing.T) {
 	response := performRequest(t, service, http.MethodPost, "/api/documents", strings.NewReader(`{"url":"http://127.0.0.1/article"}`))
 	if response.Code != http.StatusBadRequest || !strings.Contains(response.Body.String(), `"code":"private_network_url"`) {
 		t.Fatalf("response = %d %s", response.Code, response.Body.String())
+	}
+}
+
+func TestCancelledLibraryRequestDoesNotWriteAnInternalError(t *testing.T) {
+	service := &fakeLibrary{listErr: context.Canceled}
+	response := performRequest(t, service, http.MethodGet, "/api/documents", nil)
+	if response.Body.Len() != 0 {
+		t.Fatalf("cancelled response body = %s", response.Body.String())
 	}
 }
 
@@ -142,6 +167,7 @@ type fakeLibrary struct {
 	imported  library.ImportedDocument
 	importErr error
 	importURL string
+	listErr   error
 }
 
 func (f *fakeLibrary) ImportURL(_ context.Context, rawURL string) (library.ImportedDocument, error) {
@@ -150,7 +176,7 @@ func (f *fakeLibrary) ImportURL(_ context.Context, rawURL string) (library.Impor
 }
 
 func (f *fakeLibrary) ListDocuments(context.Context) ([]catalog.Document, error) {
-	return f.documents, nil
+	return f.documents, f.listErr
 }
 
 func (f *fakeLibrary) GetDocument(context.Context, string) (library.ReaderDocument, error) {

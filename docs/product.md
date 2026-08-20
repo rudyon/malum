@@ -174,6 +174,12 @@ documents, loads one reader document, and serves stored document and author
 images. It binds to loopback by default and rejects private-network import
 destinations by default. The boundary is documented in `docs/http-api.md`.
 
+The first milestone is implemented through the browser. The library loads from
+SQLite, URL import uses the designed transient and failure states, a selected
+article loads its stored typed content and local images, and back navigation
+returns to the durable library. *Playing to Win* has been manually verified
+through this normal flow without becoming checked-in sample data.
+
 ## Still unresolved
 
 These questions remain deliberate product decisions rather than blanks to fill

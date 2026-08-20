@@ -5,14 +5,22 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   PanelRightOpen,
+  X,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import type { FailedImport } from './App'
 import type { LibraryDocument } from './document'
 import { DocumentInfoSidebar } from './DocumentInfoSidebar'
 
 type LibraryProps = {
   documents: LibraryDocument[]
+  failedImports: FailedImport[]
+  isLoading: boolean
+  loadError?: string
   onImport: (url: string) => void
+  onDismissFailure: (failureID: string) => void
+  onRetryFailure: (failure: FailedImport) => void
+  onRetryLoad: () => void
 }
 
 type AddDocumentControlProps = {
@@ -170,7 +178,9 @@ function ReadyDocumentRow({
       onMouseEnter={onPreview}
       to={`/documents/${article.id}`}
     >
-      <img className="library-thumbnail" src={article.thumbnail.src} alt={article.thumbnail.alt} />
+      {article.thumbnail ? (
+        <img className="library-thumbnail" src={article.thumbnail.src} alt={article.thumbnail.alt} />
+      ) : null}
       <div className="library-row-information">
         <h2>{article.title}</h2>
         <p className="library-description">{article.description}</p>
@@ -198,7 +208,16 @@ function ImportingDocumentRow({ document }: { document: Extract<LibraryDocument,
   )
 }
 
-export function Library({ documents, onImport }: LibraryProps) {
+export function Library({
+  documents,
+  failedImports,
+  isLoading,
+  loadError,
+  onDismissFailure,
+  onImport,
+  onRetryFailure,
+  onRetryLoad,
+}: LibraryProps) {
   const firstReadyDocument = documents.find((document) => document.status === 'ready')
   const [applicationSidebarOpen, setApplicationSidebarOpen] = useState(true)
   const [infoSidebarOpen, setInfoSidebarOpen] = useState(Boolean(firstReadyDocument))
@@ -226,8 +245,13 @@ export function Library({ documents, onImport }: LibraryProps) {
         onImport={onImport}
         onToggle={() => setApplicationSidebarOpen((open) => !open)}
       />
-      <section className="library-content" aria-label="Library documents">
-        {documents.length === 0 ? (
+      <section className="library-content" aria-busy={isLoading} aria-label="Library documents">
+        {isLoading ? (
+          <div className="library-loading" aria-live="polite">
+            <span className="loading loading-spinner loading-md" aria-hidden="true" />
+            <span className="sr-only">Loading library</span>
+          </div>
+        ) : documents.length === 0 ? (
           <div className="empty-library">
             <p>
               No documents yet.
@@ -265,6 +289,37 @@ export function Library({ documents, onImport }: LibraryProps) {
           >
             <PanelRightOpen aria-hidden="true" strokeWidth={2.25} />
           </button>
+        </div>
+      ) : null}
+      {loadError || failedImports.length > 0 ? (
+        <div className="toast toast-end import-toasts">
+          {loadError ? (
+            <div className="alert library-error-toast" role="alert">
+              <span>{loadError}</span>
+              <button className="btn btn-sm" onClick={onRetryLoad} type="button">
+                Retry
+              </button>
+            </div>
+          ) : null}
+          {failedImports.map((failure) => (
+            <div className="alert import-error-toast" key={failure.id} role="alert">
+              <div className="import-error-message">
+                <strong>Could not add {displayUrl(failure.url)}</strong>
+                <span>{failure.message}</span>
+              </div>
+              <button className="btn btn-sm" onClick={() => onRetryFailure(failure)} type="button">
+                Retry
+              </button>
+              <button
+                aria-label={`Dismiss failed import for ${displayUrl(failure.url)}`}
+                className="toast-dismiss-button"
+                onClick={() => onDismissFailure(failure.id)}
+                type="button"
+              >
+                <X aria-hidden="true" />
+              </button>
+            </div>
+          ))}
         </div>
       ) : null}
     </main>

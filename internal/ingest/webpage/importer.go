@@ -56,6 +56,14 @@ func (i Importer) Import(ctx context.Context, rawURL string) (Result, error) {
 	if err != nil {
 		return Result{}, err
 	}
+	if articleURL, ok := substackArticleURL(snapshot.FinalURL, snapshot.OriginalHTML); ok {
+		resolved, err := i.fetchPage(ctx, articleURL)
+		if err != nil {
+			return Result{}, fmt.Errorf("fetch resolved Substack article: %w", err)
+		}
+		resolved.RequestedURL = snapshot.RequestedURL
+		snapshot = resolved
+	}
 	document, err := Extract(snapshot.FinalURL, snapshot.OriginalHTML)
 	if err != nil {
 		return Result{}, err

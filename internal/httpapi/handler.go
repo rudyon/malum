@@ -73,15 +73,19 @@ func (h *handler) importDocument(response http.ResponseWriter, request *http.Req
 
 	result, err := h.library.ImportURL(request.Context(), input.URL)
 	if err != nil {
-		h.logger.Error("document import failed", "error", err)
+		if request.Context().Err() != nil || errors.Is(err, context.Canceled) {
+			return
+		}
 		if errors.Is(err, safefetch.ErrPrivateDestination) {
 			writeError(response, http.StatusBadRequest, "private_network_url", "Malum does not import from private or local network addresses.")
 			return
 		}
 		if errors.Is(err, library.ErrImportFailed) {
+			h.logger.Warn("document import failed", "error", err)
 			writeError(response, http.StatusUnprocessableEntity, "document_import_failed", "Malum could not import a readable article from this URL.")
 			return
 		}
+		h.logger.Error("document import failed", "error", err)
 		writeError(response, http.StatusInternalServerError, "internal_error", "Malum could not finish saving this document.")
 		return
 	}
@@ -90,14 +94,14 @@ func (h *handler) importDocument(response http.ResponseWriter, request *http.Req
 	}
 	writeJSON(response, http.StatusCreated, map[string]any{
 		"document": documentDTO(result.Document, nil),
-		"warnings": result.Warnings,
+		"warnings": append([]webpage.Warning{}, result.Warnings...),
 	})
 }
 
 func (h *handler) listDocuments(response http.ResponseWriter, request *http.Request) {
 	documents, err := h.library.ListDocuments(request.Context())
 	if err != nil {
-		h.internalError(response, "list documents", err)
+		h.internalError(response, request, "list documents", err)
 		return
 	}
 	items := make([]documentResponse, 0, len(documents))
@@ -119,7 +123,7 @@ func (h *handler) getDocument(response http.ResponseWriter, request *http.Reques
 			writeError(response, http.StatusNotFound, "document_not_found", "This document is not in the library.")
 			return
 		}
-		h.internalError(response, "load document", err)
+		h.internalError(response, request, "load document", err)
 		return
 	}
 	writeJSON(response, http.StatusOK, map[string]any{
@@ -140,7 +144,7 @@ func (h *handler) getResource(response http.ResponseWriter, request *http.Reques
 			writeError(response, http.StatusNotFound, "resource_not_found", "This document resource is unavailable.")
 			return
 		}
-		h.internalError(response, "open document resource", err)
+		h.internalError(response, request, "open document resource", err)
 		return
 	}
 	defer resource.File.Close()
@@ -159,14 +163,17 @@ func (h *handler) getAvatar(response http.ResponseWriter, request *http.Request)
 			writeError(response, http.StatusNotFound, "avatar_not_found", "This author avatar is unavailable.")
 			return
 		}
-		h.internalError(response, "open author avatar", err)
+		h.internalError(response, request, "open author avatar", err)
 		return
 	}
 	defer avatar.File.Close()
 	serveAsset(response, request, path.Base(avatar.File.Name()), avatar.ContentType, avatar.File)
 }
 
-func (h *handler) internalError(response http.ResponseWriter, operation string, err error) {
+func (h *handler) internalError(response http.ResponseWriter, request *http.Request, operation string, err error) {
+	if request.Context().Err() != nil || errors.Is(err, context.Canceled) {
+		return
+	}
 	h.logger.Error(operation, "error", err)
 	writeError(response, http.StatusInternalServerError, "internal_error", "Malum could not complete this request.")
 }
@@ -283,7 +290,7 @@ func documentDTO(document catalog.Document, manifest *documentstore.Manifest) do
 		response.ThumbnailURL = resourceURL(document.ID, document.ThumbnailPath)
 	}
 	if manifest != nil {
-		blocks := append([]webpage.Block(nil), manifest.Article.Blocks...)
+		blocks := append([]webpage.Block{}, manifest.Article.Blocks...)
 		stored := make(map[string]string)
 		for _, resource := range manifest.Resources {
 			if resource.Status == documentstore.ResourceStored {
@@ -301,7 +308,7 @@ func documentDTO(document catalog.Document, manifest *documentstore.Manifest) do
 		}
 		response.Content = &contentResponse{
 			Blocks:  blocks,
-			Outline: append([]webpage.OutlineItem(nil), manifest.Article.Outline...),
+			Outline: append([]webpage.OutlineItem{}, manifest.Article.Outline...),
 		}
 	}
 	return response

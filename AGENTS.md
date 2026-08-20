@@ -69,16 +69,19 @@ while implementing these surfaces.
 
 ## Current project state
 
-The current end-to-end milestone is importing a deliberately saved webpage by
-URL, storing it locally, listing it in the library, opening it in the reader,
-and returning to the library.
+The first end-to-end milestone is complete: a deliberately saved webpage can be
+imported by URL, stored locally, listed in the library, opened in the reader,
+and followed by a return to the library.
 
-- The desktop library and reader are implemented against typed original
-  fixture data. See `docs/library-interface.md` and
+- The desktop library and reader load real catalogue and document data through
+  the Go API. The original typed fixture remains a design and visual reference,
+  not runtime library content. See `docs/library-interface.md` and
   `docs/reader-interface.md`.
 - `internal/ingest/webpage` retrieves a URL, preserves the original HTML
   response body in memory, extracts a normalized article, and downloads image
-  resources. See `docs/webpage-ingestion.md`.
+  resources. It includes a narrow resolver for Substack's profile/share post
+  URLs, which otherwise return an application shell. See
+  `docs/webpage-ingestion.md`.
 - `internal/storage/document` writes imported webpages as atomic, recoverable
   document bundles. See `docs/document-storage.md`.
 - `internal/ingest/webpage`, `internal/storage/author`, and `internal/catalog`
@@ -86,7 +89,9 @@ and returning to the library.
   SQLite catalogue. See `docs/catalogue.md`.
 - `internal/library`, `internal/httpapi`, and `cmd/malum` compose those pieces
   into a loopback-by-default Go API. See `docs/http-api.md`.
-- Frontend integration has not yet been implemented.
+- Vite proxies `/api` to the Go process during development. The URL dialog,
+  importing row, retryable failure toast, library reload, reader route, stored
+  images, and back navigation are integrated with that API.
 
 The two manual ingestion targets are Alice Maz's *Playing to Win* and *One with
 the Machine*. Neither article nor its images is checked into the repository.

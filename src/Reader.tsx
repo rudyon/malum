@@ -7,8 +7,9 @@ import {
   PanelLeftOpen,
   PanelRightOpen,
 } from 'lucide-react'
-import type { ArticleBlock, ArticleDocument } from './document'
 import { Link } from 'react-router-dom'
+import type { ArticleBlock, ArticleDocument, ArticleOutlineItem } from './document'
+import { articleContent } from './document'
 import { DocumentInfoSidebar } from './DocumentInfoSidebar'
 
 type ReaderProps = {
@@ -16,34 +17,98 @@ type ReaderProps = {
 }
 
 function Block({ block }: { block: ArticleBlock }) {
-  if (block.type === 'image') {
-    return (
-      <figure className="article-figure">
-        <img src={block.src} alt={block.alt} />
-        <figcaption>{block.caption}</figcaption>
-      </figure>
-    )
+  switch (block.type) {
+    case 'image':
+      return (
+        <figure className="article-figure">
+          <img src={block.src} alt={block.alt} />
+          {block.caption ? <figcaption>{block.caption}</figcaption> : null}
+        </figure>
+      )
+    case 'heading': {
+      const visualLevel = Math.min(6, Math.max(2, block.level)) as 2 | 3 | 4 | 5 | 6
+      const Heading = `h${visualLevel}` as 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+      return (
+        <Heading className={`article-heading article-heading-${visualLevel}`} id={block.id}>
+          {block.text}
+        </Heading>
+      )
+    }
+    case 'paragraph':
+      return <p className="article-paragraph">{block.text}</p>
+    case 'list': {
+      const List = block.ordered ? 'ol' : 'ul'
+      return (
+        <List className="article-list">
+          {block.items.map((item, index) => (
+            <li key={index}>{item}</li>
+          ))}
+        </List>
+      )
+    }
+    case 'definitions':
+      return (
+        <dl className="article-definitions">
+          {block.entries.map((entry, index) => (
+            <div className="article-definition" key={`${entry.term}-${index}`}>
+              <dt>{entry.term}</dt>
+              <dd>{entry.description}</dd>
+            </div>
+          ))}
+        </dl>
+      )
+    case 'quote':
+      return <blockquote className="article-quote">{block.text}</blockquote>
+    case 'preformatted':
+      return <pre className="article-preformatted">{block.text}</pre>
+    case 'divider':
+      return <hr className="article-divider" />
+    case 'table':
+      return (
+        <div className="article-table-wrapper">
+          <table className="article-table">
+            {block.caption ? <caption>{block.caption}</caption> : null}
+            <tbody>
+              {block.rows.map((row, rowIndex) => (
+                <tr key={rowIndex}>
+                  {row.map((cell, cellIndex) => {
+                    const Cell = cell.heading ? 'th' : 'td'
+                    return <Cell key={cellIndex}>{cell.text}</Cell>
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )
   }
+}
 
-  if (block.type === 'heading') {
-    const Heading = block.level === 2 ? 'h2' : 'h3'
-    return (
-      <Heading className={`article-heading article-heading-${block.level}`} id={block.id}>
-        {block.text}
-      </Heading>
-    )
+type OutlineGroup = {
+  root: ArticleOutlineItem
+  children: ArticleOutlineItem[]
+}
+
+function outlineGroups(outline: ArticleOutlineItem[]) {
+  if (outline.length === 0) return []
+  const rootLevel = Math.min(...outline.map((item) => item.level))
+  const groups: OutlineGroup[] = []
+  for (const item of outline) {
+    if (item.level === rootLevel || groups.length === 0) {
+      groups.push({ root: item, children: [] })
+    } else {
+      groups.at(-1)?.children.push(item)
+    }
   }
-
-  return <p className="article-paragraph">{block.text}</p>
+  return groups
 }
 
 export function Reader({ article }: ReaderProps) {
+  const content = useMemo(() => articleContent(article), [article])
+  const tocGroups = useMemo(() => outlineGroups(content.outline), [content.outline])
   const collapsibleSectionIds = useMemo(
-    () =>
-      article.sections
-        .filter((section) => section.blocks.some((block) => block.type === 'heading' && block.level === 3))
-        .map((section) => section.id),
-    [article.sections],
+    () => tocGroups.filter((group) => group.children.length > 0).map((group) => group.root.id),
+    [tocGroups],
   )
   const [expandedSections, setExpandedSections] = useState(() => new Set(collapsibleSectionIds))
   const [tocSidebarOpen, setTocSidebarOpen] = useState(true)
@@ -103,21 +168,16 @@ export function Reader({ article }: ReaderProps) {
             <a className="toc-entry toc-current" href="#article-title" aria-current="location">
               {article.title}
             </a>
-            {article.sections.map((section) => {
-              const childHeadings = section.blocks.filter(
-                (block): block is Extract<ArticleBlock, { type: 'heading' }> =>
-                  block.type === 'heading' && block.level === 3,
-              )
-              const isExpanded = expandedSections.has(section.id)
-
+            {tocGroups.map((group) => {
+              const isExpanded = expandedSections.has(group.root.id)
               return (
-                <div className="toc-section" key={section.id}>
+                <div className="toc-section" key={group.root.id}>
                   <div className="toc-section-heading">
-                    {childHeadings.length > 0 ? (
+                    {group.children.length > 0 ? (
                       <button
-                        aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${section.title}`}
+                        aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${group.root.title}`}
                         className="toc-section-toggle"
-                        onClick={() => setSectionExpanded(section.id, !isExpanded)}
+                        onClick={() => setSectionExpanded(group.root.id, !isExpanded)}
                         type="button"
                       >
                         {isExpanded ? (
@@ -127,15 +187,15 @@ export function Reader({ article }: ReaderProps) {
                         )}
                       </button>
                     ) : null}
-                    <a className="toc-entry" href={`#${section.id}`}>
-                      {section.title}
+                    <a className="toc-entry" href={`#${group.root.id}`}>
+                      {group.root.title}
                     </a>
                   </div>
-                  {childHeadings.length > 0 && isExpanded ? (
+                  {group.children.length > 0 && isExpanded ? (
                     <div className="toc-children">
-                      {childHeadings.map((heading) => (
+                      {group.children.map((heading) => (
                         <a className="toc-entry toc-child-entry" href={`#${heading.id}`} key={heading.id}>
-                          {heading.text}
+                          {heading.title}
                         </a>
                       ))}
                     </div>
@@ -176,19 +236,8 @@ export function Reader({ article }: ReaderProps) {
           </p>
         </header>
 
-        {article.lead.map((block, index) => (
-          <Block block={block} key={`lead-${index}`} />
-        ))}
-
-        {article.sections.map((section) => (
-          <section className="article-section" key={section.id}>
-            <h2 className="article-heading article-heading-2" id={section.id}>
-              {section.title}
-            </h2>
-            {section.blocks.map((block, index) => (
-              <Block block={block} key={`${section.id}-${index}`} />
-            ))}
-          </section>
+        {content.blocks.map((block, index) => (
+          <Block block={block} key={block.type === 'heading' ? block.id : `${block.type}-${index}`} />
         ))}
       </article>
       {infoSidebarOpen ? (

@@ -58,6 +58,12 @@ intentional.
 - A failed import is not a library document. Its importing row disappears and a
   DaisyUI error toast identifies the failed source and offers a retry action.
 
+The implemented library initially loads completed summaries from
+`GET /api/documents`. Submitting the URL dialog immediately adds the transient
+row, then replaces that exact row with the summary returned by
+`POST /api/documents`. Reloading the page reconstructs the ready library from
+SQLite rather than client persistence or fixture data.
+
 ## Add flow
 
 Both the sidebar add icon and the empty-state button open the same DaisyUI
@@ -81,7 +87,11 @@ The fixed right sidebar is 300 pixels wide, uses the same `#121212` surface and
 divider treatment as the application sidebar, and can be closed independently.
 Its header contains the reopen/close affordance and centered `Info` label. The
 body shows the document title, source domain, author, type, optional publication
-date, length, saved time, and progress.
+date, length, saved time, and progress when Malum has real progress data. The
+initial API does not fabricate progress, so imported documents omit that row.
+The displayed source domain comes from the source URL's hostname, not the
+page-supplied site name. A leading `www.` is removed for display only; the
+stored source URL is unchanged.
 
 An author is a nullable first-class entity with a stable internal handle. A
 known author without a supplied image receives a deterministic local DiceBear

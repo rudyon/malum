@@ -19,10 +19,12 @@ Automated tests use small original HTML fixtures.
 
 An import result contains three related representations:
 
-1. **Original response** — the exact HTML response-body bytes returned by the
-   source, together with requested URL, final URL after redirects, and content
-   type. The document storage layer retains these bytes in an ordinary
-   recoverable file.
+1. **Original response** — the exact HTML response-body bytes selected for
+   article extraction, together with the user-requested URL, final article URL,
+   and content type. This is normally the response after HTTP redirects. A
+   recognized application-shell URL may first resolve to its public article
+   URL as described below. The document storage layer retains the selected
+   article response bytes in an ordinary recoverable file.
 2. **Cleaned article HTML** — the main content selected and cleaned by
    Readability. This preserves inline meaning such as links and emphasis, plus
    structures the current reader does not render yet. It is normalized input,
@@ -92,9 +94,22 @@ Readability is a strong default, not an assertion that every webpage can be
 normalized automatically. A later ingestion system may add site-specific
 adapters or a manual repair workflow when concrete failures justify them.
 
+### Substack profile/share URLs
+
+The profile/share form `substack.com/@handle/p-{post-id}` returns a JavaScript
+application shell to an ordinary HTTP client instead of the article rendered
+by a browser. For that exact URL shape, the importer reads the post's public
+canonical URL from Substack's `window._preloads` bootstrap data, verifies that
+the embedded numeric post ID matches the requested path, and fetches that
+article through the same bounded, public-network-only HTTP client. The original
+user URL remains `requestedUrl`; the resolved article URL becomes `finalUrl`,
+and the stored `original.html` is the resolved article response used for
+extraction.
+
+This is a narrow adapter for a demonstrated failure. Other Substack URLs and
+ordinary webpages continue through the default retrieval and Readability path.
+
 ## Deferred decisions
 
 - Canonical-URL deduplication and re-import behavior.
 - HTML sanitization and rendering policy in the frontend.
-- Styling and interaction for lists, definitions, quotations, code, tables,
-  and other structures not yet designed in the reader.

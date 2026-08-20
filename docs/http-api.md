@@ -66,6 +66,10 @@ GET  /api/authors/{author-id}/avatar
 not fabricate reading progress. `GET /api/documents/{document-id}` adds the
 stored typed blocks and heading outline required by the reader.
 
+JSON collection fields use arrays even when empty. In particular, a document
+with no headings returns `"outline": []`, and an import with no warnings
+returns `"warnings": []`; these fields are not encoded as `null`.
+
 Document summaries expose source and presentation metadata, an optional author,
 and API URLs for an available thumbnail or avatar. Handles are returned without
 an `@`; presentation adds it. Absolute server filesystem paths are never

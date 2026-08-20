@@ -52,11 +52,20 @@ designed yet.
   preserve their aspect ratio.
 - Captions sit 8 pixels below their image.
 - Table-of-contents entries link to stable section anchors.
+- An article with no extracted headings has an empty outline and remains a
+  valid readable document; its table of contents contains no section entries.
 - The header chevrons expand or collapse all nested table-of-contents headings.
   Parent sections with children may also be expanded or collapsed individually.
   The unavailable all-expand or all-collapse action is disabled.
 - Content is rendered from a typed document value. The rendering boundary must
   not depend on fixture-specific wording, block counts, or image names.
+- The API-backed reader renders paragraphs, headings, images, lists,
+  definitions, quotations, preformatted text, dividers, and tables. Retained
+  table HTML is parsed into inert cell text and React elements; extracted HTML
+  is never injected into the page.
+- API image references that were successfully stored resolve through Malum's
+  checked local resource routes. Unavailable resources may retain their remote
+  source URL as defined by the ingestion contract.
 - The checked-in fixture is original material. It mirrors the density and
   structural variety of the Lunacy reference without copying the referenced
   article or its images.
