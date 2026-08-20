@@ -45,7 +45,15 @@ uncommitted experiments here.
 
 At the beginning of a fresh conversation, read `docs/product.md`, the focused
 documents named under **Current project state**, and inspect the repository
-status and recent history before proposing work.
+status and recent history before proposing work. Also read
+[`docs/development-methodology.md`](docs/development-methodology.md) before
+proposing or organizing new work.
+
+## Development methodology
+
+Malum uses evidence-led incremental development. The working loop, issue
+tracker conventions, completion standard, and branch/PR guidance are defined
+in [`docs/development-methodology.md`](docs/development-methodology.md).
 
 ## Design source
 
