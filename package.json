@@ -2,12 +2,14 @@
   "name": "malum-web",
   "private": true,
   "version": "0.0.0",
+  "license": "AGPL-3.0-only",
   "packageManager": "pnpm@11.19.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "licenses": "pnpm licenses list"
   },
   "dependencies": {
     "@dicebear/core": "^10.6.0",

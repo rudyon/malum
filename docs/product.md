@@ -113,6 +113,9 @@ The Go module is:
 github.com/rudyon/malum
 ```
 
+Malum's original source code is licensed as `AGPL-3.0-only`. Third-party
+licensing and release-notice practice are documented in `docs/licensing.md`.
+
 ## Working principles
 
 - Keep the complete product in view without attempting to build every subsystem

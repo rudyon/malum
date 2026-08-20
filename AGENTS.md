@@ -97,6 +97,8 @@ and followed by a return to the library.
   SQLite catalogue. See `docs/catalogue.md`.
 - `internal/library`, `internal/httpapi`, and `cmd/malum` compose those pieces
   into a loopback-by-default Go API. See `docs/http-api.md`.
+- Malum's original source is `AGPL-3.0-only`; the third-party inventory and
+  release practice are in `docs/licensing.md` and `THIRD_PARTY_NOTICES.md`.
 - Vite proxies `/api` to the Go process during development. The URL dialog,
   importing row, retryable failure toast, library reload, reader route, stored
   images, and back navigation are integrated with that API.
